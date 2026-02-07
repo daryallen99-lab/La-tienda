@@ -17,7 +17,6 @@ h1{
     margin:20px;
     font-size:42px;
     color:#2e7d32;
-    text-shadow:0 0 10px white;
 }
 
 .productos{
@@ -34,11 +33,6 @@ h1{
     border-radius:18px;
     padding:15px;
     box-shadow:0 0 12px rgba(0,0,0,0.2);
-    transition:0.3s;
-}
-
-.card:hover{
-    transform:scale(1.05);
 }
 
 .card button{
@@ -51,48 +45,6 @@ h1{
     color:white;
     font-weight:bold;
 }
-
-#totalTop{
-    font-size:22px;
-    font-weight:bold;
-    margin:15px;
-    color:#d84315;
-}
-
-#carritoPanel{
-    position:fixed;
-    right:0;
-    top:0;
-    width:330px;
-    height:100%;
-    background:white;
-    box-shadow:-3px 0 15px rgba(0,0,0,0.3);
-    padding:15px;
-    overflow:auto;
-    display:none;
-    z-index:999;
-}
-
-#carritoPanel h2{
-    color:#2e7d32;
-}
-
-.itemCarrito{
-    border-bottom:1px solid #ddd;
-    padding:10px;
-}
-
-.itemCarrito button{
-    margin:3px;
-    padding:5px 10px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-}
-
-.btnMas{background:#2e7d32;color:white;}
-.btnMenos{background:#ff9800;color:white;}
-.btnEliminar{background:#d32f2f;color:white;}
 
 .toggleBtn{
     background:#1976d2;
@@ -119,7 +71,6 @@ summary{
     font-size:18px;
     font-weight:bold;
     cursor:pointer;
-    color:#333;
 }
 
 input,select{
@@ -130,21 +81,43 @@ input,select{
     border:1px solid #aaa;
 }
 
-#accionesFinales button{
-    width:90%;
-    margin:8px auto;
-    display:block;
-    padding:12px;
-    border:none;
-    border-radius:14px;
-    cursor:pointer;
-    font-weight:bold;
+/* PANEL CARRITO */
+.panel{
+    position:fixed;
+    top:0;
+    width:330px;
+    height:100%;
+    background:white;
+    box-shadow:0 0 15px rgba(0,0,0,0.3);
+    padding:15px;
+    overflow:auto;
+    display:none;
+    z-index:999;
 }
 
+#carritoPanel{ right:0; }
+#walletPanel{ left:0; }
+
+.itemCarrito{
+    border-bottom:1px solid #ddd;
+    padding:10px;
+}
+
+.itemCarrito button{
+    margin:3px;
+    padding:5px 10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.btnMas{background:#2e7d32;color:white;}
+.btnMenos{background:#ff9800;color:white;}
+.btnEliminar{background:#d32f2f;color:white;}
+
 .btnFactura{background:#2e7d32;color:white;}
-.btnComprobante{background:#1976d2;color:white;}
 .btnWhats{background:#25d366;color:white;}
-.btnWallet{background:gray;color:white;}
+.btnRecarga{background:#ff9800;color:white;}
 </style>
 </head>
 
@@ -152,26 +125,41 @@ input,select{
 
 <h1>🛒 CUBA MARKET 🛒</h1>
 
-<div id="totalTop">Total actual: 0 CUP</div>
-
-<button class="toggleBtn" onclick="mostrarCarrito()">🛍 Ver Carrito</button>
+<button class="toggleBtn" onclick="mostrarCarrito()">🛍 Carrito</button>
+<button class="toggleBtn" onclick="mostrarWallet()">👛 Billetera</button>
 
 <input type="text" id="buscador" placeholder="🔍 Buscar productos..." onkeyup="filtrarProductos()">
 
 <!-- PRODUCTOS -->
 <div class="productos" id="listaProductos"></div>
 
-<!-- PANEL DESPLEGABLE CLIENTE -->
+<!-- DATOS CLIENTE -->
 <details>
 <summary>📌 Datos del Cliente</summary>
 <input id="clienteNombre" placeholder="Nombre y Apellidos">
 <input id="clienteDireccion" placeholder="Dirección">
 <input id="clienteTelefono" placeholder="Teléfono">
 <input id="clienteCI" placeholder="Carnet de Identidad">
+
 <select id="entrega">
 <option>Recoger en tienda</option>
 <option>Mensajería</option>
 </select>
+</details>
+
+<!-- MÉTODO DE PAGO -->
+<details>
+<summary>💳 Seleccionar Método de Pago</summary>
+
+<select id="metodoPago">
+<option value="">-- Elegir método --</option>
+<option value="CRIPTO">CRIPTO (928374)</option>
+<option value="CUP">CUP (837261)</option>
+<option value="USD">USD (112233)</option>
+<option value="MLC">MLC (445566)</option>
+<option value="CLÁSICA">CLÁSICA (778899)</option>
+</select>
+
 </details>
 
 <!-- CUPÓN -->
@@ -182,61 +170,50 @@ input,select{
 <p id="estadoCupon"></p>
 </details>
 
-<!-- MÉTODOS DE PAGO -->
-<details>
-<summary>💳 Métodos de Pago</summary>
-<p>CRIPTO: 928374</p>
-<p>CUP: 837261</p>
-<p>USD: 112233</p>
-<p>MLC: 445566</p>
-<p>CLÁSICA: 778899</p>
-</details>
-
-<!-- CARRITO -->
-<div id="carritoPanel">
+<!-- PANEL CARRITO -->
+<div class="panel" id="carritoPanel">
 <h2>🛒 Tu Carrito</h2>
 <div id="carritoItems"></div>
 
-<h3 id="totalCarrito">Total: 0 CUP</h3>
+<h3 id="subtotalCarrito"></h3>
+<h3 id="descuentoCarrito"></h3>
+<h2 id="totalCarrito"></h2>
 
-<div id="accionesFinales">
-<button class="btnFactura" onclick="generarFactura()">📄 Descargar Factura PDF</button>
-<button class="btnComprobante" onclick="generarComprobante()">🧾 Descargar Comprobante PDF</button>
-<button class="btnWhats" onclick="enviarWhats()">📲 Enviar Pedido WhatsApp</button>
-<button class="btnWallet">👛 Billetera (Próximamente)</button>
-<button onclick="ocultarCarrito()">❌ Cerrar Carrito</button>
-</div>
+<button class="btnFactura" onclick="generarFactura()">📄 Factura PDF</button>
+<button class="btnWhats" onclick="enviarWhats()">📲 WhatsApp</button>
+<button onclick="ocultarCarrito()">❌ Cerrar</button>
 </div>
 
-<!-- LIBRERÍA PDF -->
+<!-- PANEL BILLETERA -->
+<div class="panel" id="walletPanel">
+<h2>👛 Billetera Cuba Market</h2>
+
+<h3>Saldo actual:</h3>
+<h1 id="saldoWallet">0 CUP</h1>
+
+<button class="btnRecarga" onclick="recargarSaldo()">➕ Agregar saldo</button>
+
+<p id="estadoRecarga"></p>
+
+<button onclick="ocultarWallet()">❌ Cerrar</button>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-let productos = [
+let productos=[
  {nombre:"🍗 Pollo",precio:3200},
  {nombre:"🍚 Arroz 1kg",precio:250},
  {nombre:"🍪 Galletas",precio:180},
- {nombre:"🍬 Azúcar 1kg",precio:300},
- {nombre:"🛢 Aceite",precio:1200},
- {nombre:"🥛 Leche en polvo",precio:2800},
- {nombre:"🥩 Picadillo",precio:650},
- {nombre:"🍌 Plátanos",precio:600},
- {nombre:"🥤 Refresco",precio:400},
- {nombre:"🍫 Chocolate",precio:500},
  {nombre:"☕ Café",precio:2000},
  {nombre:"🍯 Miel",precio:1300},
- {nombre:"🧀 Queso",precio:2200},
- {nombre:"🍎 Manzanas",precio:1200},
- {nombre:"🥚 Huevos",precio:900},
- {nombre:"🥖 Pan",precio:120},
- {nombre:"🐟 Pescado",precio:2500},
- {nombre:"🍗 Muslo",precio:1800},
- {nombre:"🥫 Sardinas",precio:600},
- {nombre:"🍝 Pasta",precio:450}
+ {nombre:"🧀 Queso",precio:2200}
 ];
 
 let carrito=[];
 let descuento=0;
+let codigoAplicado="";
+let saldo=0;
 
 function cargarProductos(){
  let cont=document.getElementById("listaProductos");
@@ -255,94 +232,131 @@ cargarProductos();
 function agregarCarrito(i){
  let prod=productos[i];
  let existe=carrito.find(x=>x.nombre==prod.nombre);
- if(existe){existe.cantidad++;}
- else{carrito.push({nombre:prod.nombre,precio:prod.precio,cantidad:1});}
+ if(existe) existe.cantidad++;
+ else carrito.push({nombre:prod.nombre,precio:prod.precio,cantidad:1});
  actualizarCarrito();
 }
 
 function actualizarCarrito(){
  let div=document.getElementById("carritoItems");
  div.innerHTML="";
- let total=0;
+ let subtotal=0;
+
  carrito.forEach((it,index)=>{
-   total+=it.precio*it.cantidad;
+   subtotal+=it.precio*it.cantidad;
    div.innerHTML+=`
    <div class="itemCarrito">
-    ${it.nombre} x${it.cantidad} - ${(it.precio*it.cantidad)} CUP<br>
-    <button class="btnMas" onclick="sumar(${index})">+</button>
-    <button class="btnMenos" onclick="restar(${index})">-</button>
-    <button class="btnEliminar" onclick="eliminar(${index})">X</button>
+    ${it.nombre} x${it.cantidad} - ${it.precio*it.cantidad} CUP
+    <br>
+    <button class="btnMas" onclick="it.cantidad++;actualizarCarrito()">+</button>
+    <button class="btnMenos" onclick="if(it.cantidad>1){it.cantidad--;actualizarCarrito()}">-</button>
+    <button class="btnEliminar" onclick="carrito.splice(${index},1);actualizarCarrito()">X</button>
    </div>`;
  });
 
- total = total - (total*descuento);
- document.getElementById("totalCarrito").innerText="Total: "+total.toFixed(2)+" CUP";
- document.getElementById("totalTop").innerText="Total actual: "+total.toFixed(2)+" CUP";
-}
+ let montoDescuento=subtotal*descuento;
+ let total=subtotal-montoDescuento;
 
-function sumar(i){carrito[i].cantidad++; actualizarCarrito();}
-function restar(i){
- if(carrito[i].cantidad>1) carrito[i].cantidad--;
- actualizarCarrito();
-}
-function eliminar(i){carrito.splice(i,1); actualizarCarrito();}
+ document.getElementById("subtotalCarrito").innerText="Subtotal: "+subtotal+" CUP";
+ document.getElementById("descuentoCarrito").innerText=
+ descuento>0 ? `Descuento 10% (${codigoAplicado}) : -${montoDescuento.toFixed(2)} CUP` : "";
 
-function mostrarCarrito(){document.getElementById("carritoPanel").style.display="block";}
-function ocultarCarrito(){document.getElementById("carritoPanel").style.display="none";}
-
-function filtrarProductos(){
- let texto=document.getElementById("buscador").value.toLowerCase();
- document.querySelectorAll(".producto").forEach(card=>{
-   card.style.display=card.innerText.toLowerCase().includes(texto)?"block":"none";
- });
+ document.getElementById("totalCarrito").innerText="TOTAL: "+total.toFixed(2)+" CUP";
 }
 
 function aplicarCupon(){
  let c=document.getElementById("cupon").value.trim();
  if(c=="PROMO10"){
    descuento=0.10;
-   document.getElementById("estadoCupon").innerText="✅ Descuento 10% aplicado";
+   codigoAplicado=c;
+   document.getElementById("estadoCupon").innerText="✅ Cupón aplicado: 10%";
  }else{
    descuento=0;
+   codigoAplicado="";
    document.getElementById("estadoCupon").innerText="❌ Cupón inválido";
  }
  actualizarCarrito();
 }
 
+/* PANEL CONTROL */
+function mostrarCarrito(){document.getElementById("carritoPanel").style.display="block";}
+function ocultarCarrito(){document.getElementById("carritoPanel").style.display="none";}
+
+function mostrarWallet(){document.getElementById("walletPanel").style.display="block";}
+function ocultarWallet(){document.getElementById("walletPanel").style.display="none";}
+
+/* FACTURA PDF */
 function generarFactura(){
  const {jsPDF}=window.jspdf;
  let pdf=new jsPDF();
  pdf.setFont("helvetica");
 
- pdf.text("CUBA MARKET - FACTURA",20,20);
+ let nombre=document.getElementById("clienteNombre").value;
+ let entrega=document.getElementById("entrega").value;
+ let pago=document.getElementById("metodoPago").value;
 
- let y=40;
+ pdf.text("CUBA MARKET - FACTURA OFICIAL",20,20);
+ pdf.text("Cliente: "+nombre,20,35);
+ pdf.text("Entrega: "+entrega,20,45);
+ pdf.text("Pago: "+pago,20,55);
+
+ let y=75;
+ let subtotal=0;
+
  carrito.forEach(it=>{
+   subtotal+=it.precio*it.cantidad;
    pdf.text(`${it.nombre} x${it.cantidad}`,20,y);
    pdf.text(`${it.precio*it.cantidad} CUP`,150,y);
    y+=10;
  });
 
- pdf.text("Gracias por tu compra ❤️",20,y+20);
+ let montoDesc=subtotal*descuento;
+ let total=subtotal-montoDesc;
+
+ pdf.text("Subtotal: "+subtotal+" CUP",20,y+15);
+
+ if(descuento>0){
+ pdf.text(`Descuento 10% (${codigoAplicado}): -${montoDesc.toFixed(2)} CUP`,20,y+25);
+ }
+
+ pdf.text("TOTAL FINAL: "+total.toFixed(2)+" CUP",20,y+40);
+ pdf.text("Gracias por tu compra ❤️",20,y+60);
+
  pdf.save("factura.pdf");
 }
 
-function generarComprobante(){
- const {jsPDF}=window.jspdf;
- let pdf=new jsPDF();
- pdf.text("CUBA MARKET - COMPROBANTE",20,20);
- pdf.text("Pago recibido correctamente.",20,40);
- pdf.save("comprobante.pdf");
-}
-
+/* WHATSAPP */
 function enviarWhats(){
- let total=document.getElementById("totalCarrito").innerText;
- let msg="Hola, quiero hacer este pedido en Cuba Market:%0A";
+ let nombre=document.getElementById("clienteNombre").value;
+ let entrega=document.getElementById("entrega").value;
+ let pago=document.getElementById("metodoPago").value;
+
+ let msg=`Hola, quiero hacer este pedido en Cuba Market:%0A%0A`;
+ msg+=`Cliente: ${nombre}%0AEntrega: ${entrega}%0APago: ${pago}%0A%0A`;
+
  carrito.forEach(it=>{
    msg+=`${it.nombre} x${it.cantidad}%0A`;
  });
- msg+=`Total: ${total}%0AEnviar factura + captura del pago.`;
+
+ msg+=`%0ADescuento: ${codigoAplicado || "Ninguno"}%0A`;
+ msg+=document.getElementById("totalCarrito").innerText;
+
  window.open("https://wa.me/58752291?text="+msg);
+}
+
+/* RECARGA SALDO */
+function recargarSaldo(){
+ let metodo=document.getElementById("metodoPago").value;
+ if(metodo==""){
+   document.getElementById("estadoRecarga").innerText="❌ Selecciona un método de pago primero";
+   return;
+ }
+
+ saldo+=1000;
+ document.getElementById("saldoWallet").innerText=saldo+" CUP";
+
+ document.getElementById("estadoRecarga").innerText=
+ `✅ Saldo agregado correctamente usando ${metodo}`;
 }
 </script>
 
