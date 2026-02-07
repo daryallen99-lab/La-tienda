@@ -2,338 +2,283 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>🛒 Tienda Cuba PRO</title>
-
-<!-- PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<title>🇨🇺 Cuba Market 🛒</title>
 
 <style>
 body{
     margin:0;
-    font-family:Arial, sans-serif;
-    background:radial-gradient(circle,#111,#000);
-    color:white;
+    font-family: Arial, sans-serif;
+    background:#f7f7f7;
+    color:#222;
+}
+header{
+    background:linear-gradient(90deg,#e60000,#ffcc00);
+    padding:20px;
     text-align:center;
+    font-size:32px;
+    font-weight:bold;
+    color:white;
+    text-shadow:0 0 8px black;
 }
-h1{
-    color:#00ffcc;
-    text-shadow:0 0 15px #00ffcc;
-    margin:20px;
+.info{
+    text-align:center;
+    padding:10px;
+    font-size:18px;
 }
-.productos{
+.searchBox{
+    text-align:center;
+    margin:15px;
+}
+.searchBox input{
+    width:80%;
+    max-width:500px;
+    padding:12px;
+    border-radius:12px;
+    border:2px solid #ffcc00;
+    font-size:16px;
+}
+.products{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    max-width:1000px;
-    margin:auto;
+    gap:15px;
     padding:20px;
 }
 .card{
-    background:rgba(0,0,0,0.75);
-    border:2px solid #00ffcc;
+    background:white;
     border-radius:18px;
     padding:15px;
-    box-shadow:0 0 18px #00ffcc;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+    text-align:center;
     transition:0.3s;
 }
 .card:hover{
-    transform:scale(1.06);
+    transform:scale(1.05);
 }
 .card img{
-    width:100%;
-    height:140px;
-    object-fit:cover;
-    border-radius:12px;
-    margin-bottom:10px;
+    width:90px;
+    height:90px;
 }
-button{
+.card button{
     margin-top:10px;
     padding:10px 15px;
     border:none;
     border-radius:12px;
-    cursor:pointer;
-    background:#00ffcc;
+    background:#ffcc00;
     font-weight:bold;
-    transition:0.2s;
+    cursor:pointer;
 }
-button:hover{
-    transform:scale(1.05);
+.card button:hover{
+    background:#ffaa00;
 }
-#carritoPanel{
-    max-width:800px;
-    margin:20px auto;
-    padding:20px;
-    border-radius:18px;
-    border:2px solid magenta;
-    box-shadow:0 0 20px magenta;
-    background:rgba(0,0,0,0.85);
+#cartBtn{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:#00cc66;
+    color:white;
+    padding:15px;
+    border-radius:15px;
+    cursor:pointer;
+    font-weight:bold;
+    box-shadow:0 0 10px rgba(0,0,0,0.4);
+}
+#cartPanel{
+    position:fixed;
+    top:0;
+    right:0;
+    width:320px;
+    height:100%;
+    background:white;
+    box-shadow:-5px 0 15px rgba(0,0,0,0.3);
+    padding:15px;
     display:none;
+    flex-direction:column;
 }
-.itemCarrito{
+#cartPanel h2{
+    text-align:center;
+}
+.cartItem{
     display:flex;
     justify-content:space-between;
+    align-items:center;
     margin:8px 0;
     padding:8px;
-    border-bottom:1px solid gray;
+    border-bottom:1px solid #ddd;
 }
-.totalBox{
+.cartItem button{
+    border:none;
+    padding:5px 8px;
+    border-radius:8px;
+    cursor:pointer;
+}
+.total{
+    font-size:18px;
+    font-weight:bold;
     margin-top:15px;
-    font-size:20px;
-    color:yellow;
+    text-align:center;
+}
+.actions button{
+    width:100%;
+    margin-top:10px;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
     font-weight:bold;
 }
-.descuento{
-    color:lime;
-    font-size:18px;
+.whatsapp{
+    background:#25d366;
+    color:white;
 }
-input,select{
-    width:90%;
-    padding:10px;
-    margin:8px;
-    border-radius:10px;
-    border:none;
-    font-size:16px;
+.pdf{
+    background:#ffcc00;
 }
-.checkout{
-    margin-top:20px;
-    padding:15px;
-    border:2px solid #00ffcc;
-    border-radius:15px;
+.hide{
+    background:#e60000;
+    color:white;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🛒 Tienda Cuba PRO 🇨🇺</h1>
-<p>✨ Compra alimentos y confituras con factura automática</p>
+<header>🇨🇺 Cuba Market 🛒✨</header>
 
-<!-- PRODUCTOS -->
-<div class="productos">
-
-    <div class="card">
-        <img src="https://i.imgur.com/vxQ8FQW.jpg">
-        <h2>🍗 Pollo (1kg)</h2>
-        <p><b>1200 CUP</b></p>
-        <button onclick="agregarProducto('Pollo 1kg',1200)">➕ Añadir</button>
-    </div>
-
-    <div class="card">
-        <img src="https://i.imgur.com/7HhRk0p.jpg">
-        <h2>🍚 Arroz (1kg)</h2>
-        <p><b>350 CUP</b></p>
-        <button onclick="agregarProducto('Arroz 1kg',350)">➕ Añadir</button>
-    </div>
-
-    <div class="card">
-        <img src="https://i.imgur.com/FSR8M2n.jpg">
-        <h2>🍪 Galletas</h2>
-        <p><b>250 CUP</b></p>
-        <button onclick="agregarProducto('Galletas',250)">➕ Añadir</button>
-    </div>
-
-    <div class="card">
-        <img src="https://i.imgur.com/WoY9O6o.jpg">
-        <h2>🍬 Azúcar (1kg)</h2>
-        <p><b>300 CUP</b></p>
-        <button onclick="agregarProducto('Azúcar 1kg',300)">➕ Añadir</button>
-    </div>
-
-    <div class="card">
-        <img src="https://i.imgur.com/Xa4Xc9Z.jpg">
-        <h2>🛢️ Aceite (1L)</h2>
-        <p><b>1500 CUP</b></p>
-        <button onclick="agregarProducto('Aceite 1L',1500)">➕ Añadir</button>
-    </div>
-
+<div class="info">
+    🍗🥖 Bienvenido a tu tienda de alimentos en CUP 💰  
+    Selecciona productos y genera tu factura 🧾📲
 </div>
 
-<!-- BOTÓN VER CARRITO -->
-<button onclick="mostrarCarrito()">🛒 Ver Carrito</button>
+<div class="searchBox">
+    🔍 <input type="text" id="search" placeholder="Buscar producto..." onkeyup="filtrar()">
+</div>
+
+<div class="products" id="listaProductos"></div>
+
+<div id="cartBtn" onclick="mostrarCarrito()">🛒 Carrito (<span id="count">0</span>)</div>
 
 <!-- PANEL CARRITO -->
-<div id="carritoPanel">
-    <h2>🧾 Tu Carrito</h2>
-    <div id="listaCarrito"></div>
+<div id="cartPanel">
+    <h2>🛍 Tu Carrito</h2>
+    <div id="cartItems"></div>
 
-    <p class="descuento" id="descuentoTxt"></p>
-    <div class="totalBox" id="totalTxt"></div>
+    <div class="total">💰 Total: <span id="total">0</span> CUP</div>
 
-    <!-- CHECKOUT -->
-    <div class="checkout">
-        <h3>📦 Datos del Cliente</h3>
-        <input id="nombre" placeholder="Nombre completo">
-        <input id="telefono" placeholder="Teléfono">
-        <input id="direccion" placeholder="Dirección de entrega">
-
-        <select id="pago">
-            <option value="Efectivo CUP">💵 Pago en efectivo CUP</option>
-            <option value="Crypto USDT">💎 Pago en Crypto USDT</option>
-        </select>
+    <div class="actions">
+        <button class="whatsapp" onclick="enviarWhatsApp()">📲 Enviar Pedido</button>
+        <button class="pdf" onclick="generarPDF()">🧾 Descargar Factura PDF</button>
+        <button class="hide" onclick="ocultarCarrito()">❌ Ocultar</button>
     </div>
-
-    <button onclick="enviarWhatsApp()">📲 Confirmar Pedido WhatsApp</button>
-    <button onclick="generarFacturaPDF()">📄 Descargar Factura PDF</button>
-    <button onclick="vaciarCarrito()">❌ Vaciar Carrito</button>
 </div>
 
 <script>
-let carrito = JSON.parse(localStorage.getItem("carrito")) || {};
+/* 🖼 IMAGEN BASE64 GENÉRICA */
+let placeholder = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAA...";
 
-/* =========================
-   CÓDIGO DE ORDEN AUTOMÁTICO
-========================= */
-function generarOrden(){
-    return "ORD-"+Math.floor(Math.random()*99999);
+/* 🛒 PRODUCTOS (PRECIOS EJEMPLO CUBA) */
+let productos = [
+ {nombre:"🍗 Pollo (1kg)", precio:1200, img:placeholder},
+ {nombre:"🍚 Arroz (1kg)", precio:350, img:placeholder},
+ {nombre:"🍪 Galletas", precio:250, img:placeholder},
+ {nombre:"🍬 Azúcar (1kg)", precio:300, img:placeholder},
+ {nombre:"🛢 Aceite (1L)", precio:1800, img:placeholder},
+ {nombre:"🥖 Pan", precio:150, img:placeholder},
+ {nombre:"🥚 Huevos (10)", precio:900, img:placeholder}
+];
+
+let carrito = {};
+
+/* MOSTRAR PRODUCTOS */
+function renderProductos(lista){
+ let cont = document.getElementById("listaProductos");
+ cont.innerHTML="";
+ lista.forEach((p,i)=>{
+   cont.innerHTML += `
+    <div class="card">
+      <img src="${p.img}">
+      <h3>${p.nombre}</h3>
+      <p>💰 ${p.precio} CUP</p>
+      <button onclick="agregar(${i})">➕ Añadir</button>
+    </div>
+   `;
+ });
+}
+renderProductos(productos);
+
+/* BUSCADOR */
+function filtrar(){
+ let texto = document.getElementById("search").value.toLowerCase();
+ let filtrados = productos.filter(p=>p.nombre.toLowerCase().includes(texto));
+ renderProductos(filtrados);
 }
 
-/* =========================
-   AGREGAR PRODUCTO
-========================= */
-function agregarProducto(nombre,precio){
-    if(!carrito[nombre]){
-        carrito[nombre]={precio:precio,cantidad:1};
-    } else {
-        carrito[nombre].cantidad++;
-    }
-    localStorage.setItem("carrito",JSON.stringify(carrito));
-    alert("✅ Añadido: "+nombre);
+/* AGREGAR */
+function agregar(i){
+ let prod = productos[i];
+ if(!carrito[prod.nombre]) carrito[prod.nombre]={...prod,cant:0};
+ carrito[prod.nombre].cant++;
+ actualizar();
 }
 
-/* =========================
-   MOSTRAR CARRITO
-========================= */
-function mostrarCarrito(){
-    document.getElementById("carritoPanel").style.display="block";
+/* ACTUALIZAR */
+function actualizar(){
+ let items = document.getElementById("cartItems");
+ items.innerHTML="";
+ let total=0;
+ let count=0;
 
-    let lista=document.getElementById("listaCarrito");
-    lista.innerHTML="";
+ Object.values(carrito).forEach(p=>{
+   total += p.precio*p.cant;
+   count += p.cant;
 
-    let total=0;
-    for(let item in carrito){
-        let prod=carrito[item];
-        let subtotal=prod.precio*prod.cantidad;
-        total+=subtotal;
+   items.innerHTML += `
+    <div class="cartItem">
+      ${p.nombre} x${p.cant}
+      <div>
+        <button onclick="sumar('${p.nombre}')">➕</button>
+        <button onclick="restar('${p.nombre}')">➖</button>
+        <button onclick="eliminar('${p.nombre}')">❌</button>
+      </div>
+    </div>
+   `;
+ });
 
-        lista.innerHTML += `
-        <div class="itemCarrito">
-            <span>${item} x${prod.cantidad}</span>
-            <span>${subtotal} CUP</span>
-        </div>`;
-    }
-
-    let descuento= total>=5000 ? total*0.10 : 0;
-    let totalFinal= total-descuento;
-
-    document.getElementById("descuentoTxt").innerText=
-        descuento>0 ? "🎁 Descuento 10%: -"+descuento.toFixed(0)+" CUP" : "";
-
-    document.getElementById("totalTxt").innerText=
-        "💰 Total Final: "+totalFinal.toFixed(0)+" CUP";
+ document.getElementById("total").innerText=total;
+ document.getElementById("count").innerText=count;
 }
 
-/* =========================
-   WHATSAPP PEDIDO
-========================= */
+/* CONTROLES */
+function sumar(n){carrito[n].cant++; actualizar();}
+function restar(n){
+ carrito[n].cant--;
+ if(carrito[n].cant<=0) delete carrito[n];
+ actualizar();
+}
+function eliminar(n){delete carrito[n]; actualizar();}
+
+/* MOSTRAR/OCULTAR */
+function mostrarCarrito(){document.getElementById("cartPanel").style.display="flex";}
+function ocultarCarrito(){document.getElementById("cartPanel").style.display="none";}
+
+/* WHATSAPP */
 function enviarWhatsApp(){
-    let nombre=document.getElementById("nombre").value;
-    let tel=document.getElementById("telefono").value;
-    let dir=document.getElementById("direccion").value;
-    let pago=document.getElementById("pago").value;
-
-    if(nombre==""||tel==""||dir==""){
-        alert("⚠️ Completa tus datos antes de enviar.");
-        return;
-    }
-
-    let orden=generarOrden();
-    let texto=`🛒 Pedido Tienda Cuba PRO%0A`;
-    texto+=`📌 Orden: ${orden}%0A%0A`;
-    texto+=`👤 Cliente: ${nombre}%0A📞 Tel: ${tel}%0A🏠 Dirección: ${dir}%0A💳 Pago: ${pago}%0A%0A`;
-
-    let total=0;
-    for(let item in carrito){
-        let prod=carrito[item];
-        let subtotal=prod.precio*prod.cantidad;
-        total+=subtotal;
-        texto+=`✅ ${item} x${prod.cantidad} = ${subtotal} CUP%0A`;
-    }
-
-    let descuento= total>=5000 ? total*0.10 : 0;
-    let totalFinal= total-descuento;
-
-    texto+=`%0A----------------%0A`;
-    if(descuento>0){
-        texto+=`🎁 Descuento: -${descuento.toFixed(0)} CUP%0A`;
-    }
-    texto+=`💰 Total Final: ${totalFinal.toFixed(0)} CUP%0A`;
-
-    window.open("https://wa.me/58752291?text="+texto);
+ let mensaje="🛒 Pedido Cuba Market:%0A";
+ let total=0;
+ Object.values(carrito).forEach(p=>{
+   mensaje += `${p.nombre} x${p.cant} = ${p.precio*p.cant} CUP%0A`;
+   total += p.precio*p.cant;
+ });
+ mensaje += `%0A💰 Total: ${total} CUP`;
+ window.open("https://wa.me/58752291?text="+mensaje);
 }
 
-/* =========================
-   FACTURA PDF PRO
-========================= */
-function generarFacturaPDF(){
-    const { jsPDF } = window.jspdf;
-    let doc=new jsPDF();
-
-    let nombre=document.getElementById("nombre").value;
-    let tel=document.getElementById("telefono").value;
-    let dir=document.getElementById("direccion").value;
-    let pago=document.getElementById("pago").value;
-
-    let orden=generarOrden();
-
-    doc.setFontSize(18);
-    doc.text("Factura - Tienda Cuba PRO",20,20);
-
-    doc.setFontSize(12);
-    doc.text("Orden: "+orden,20,30);
-    doc.text("Cliente: "+nombre,20,40);
-    doc.text("Tel: "+tel,20,50);
-    doc.text("Dirección: "+dir,20,60);
-    doc.text("Pago: "+pago,20,70);
-
-    let y=85;
-    let total=0;
-
-    doc.text("Productos:",20,y);
-    y+=10;
-
-    for(let item in carrito){
-        let prod=carrito[item];
-        let subtotal=prod.precio*prod.cantidad;
-        total+=subtotal;
-        doc.text(`${item} x${prod.cantidad} = ${subtotal} CUP`,20,y);
-        y+=8;
-    }
-
-    let descuento= total>=5000 ? total*0.10 : 0;
-    let totalFinal= total-descuento;
-
-    y+=10;
-    if(descuento>0){
-        doc.text("Descuento 10%: -"+descuento.toFixed(0)+" CUP",20,y);
-        y+=10;
-    }
-
-    doc.setFontSize(14);
-    doc.text("TOTAL FINAL: "+totalFinal.toFixed(0)+" CUP",20,y);
-
-    doc.save("Factura_TiendaCubaPRO.pdf");
-}
-
-/* =========================
-   VACIAR
-========================= */
-function vaciarCarrito(){
-    carrito={};
-    localStorage.removeItem("carrito");
-    alert("🗑️ Carrito vacío.");
-    location.reload();
+/* PDF SIMPLE */
+function generarPDF(){
+ let total=document.getElementById("total").innerText;
+ alert("📌 Factura PDF generada (modo demo). Para PDF real se integra reportlab o jsPDF.");
 }
 </script>
 
 </body>
-</html>
+    </html>
