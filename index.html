@@ -1,243 +1,391 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>CubaMarket 🇨🇺</title>
+<meta charset="UTF-8">
+<title>CubaMarket 🇨🇺</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: radial-gradient(circle, #000, #050505);
-      color: white;
-      text-align: center;
-    }
-
-    h1 {
-      margin-top: 30px;
-      font-size: 45px;
-      color: #00ffcc;
-      text-shadow: 0 0 15px #00ffcc;
-    }
-
-    .box {
-      max-width: 420px;
-      margin: 30px auto;
-      background: rgba(20, 20, 20, 0.95);
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 0 25px #00ffcc;
-    }
-
-    input {
-      width: 90%;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 12px;
-      border: none;
-      font-size: 16px;
-      outline: none;
-    }
-
-    button {
-      width: 92%;
-      padding: 14px;
-      margin-top: 10px;
-      border-radius: 14px;
-      border: none;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(90deg, #00ffcc, #00ffaa);
-      color: black;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.03);
-      opacity: 0.9;
-    }
-
-    .btnRed {
-      background: linear-gradient(90deg, #ff4444, #ff2222);
-      color: white;
-    }
-
-    #storePanel {
-      display: none;
-    }
-
-    .walletBox {
-      font-size: 22px;
-      margin: 15px;
-      padding: 15px;
-      border-radius: 15px;
-      background: rgba(0, 255, 204, 0.08);
-      box-shadow: 0 0 10px #00ffcc;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(120deg,#e8ffef,#fff8c6,#d6f0ff);
+  text-align:center;
+  color:#222;
+}
+h1{
+  font-size:45px;
+  margin:20px;
+  color:#2e7d32;
+}
+#totalArriba{
+  font-size:22px;
+  font-weight:bold;
+  color:#d32f2f;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+  max-width:1200px;
+  margin:20px auto;
+  padding:15px;
+}
+.card{
+  background:white;
+  border-radius:18px;
+  padding:15px;
+  box-shadow:0 0 12px rgba(0,0,0,0.2);
+}
+.card button{
+  margin-top:10px;
+  padding:10px;
+  width:100%;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:bold;
+  background:#43a047;
+  color:white;
+}
+.toggleBtn{
+  padding:12px 18px;
+  margin:10px;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:bold;
+  background:#1976d2;
+  color:white;
+}
+.panel{
+  position:fixed;
+  top:0;
+  width:360px;
+  height:100%;
+  background:white;
+  box-shadow:0 0 15px rgba(0,0,0,0.3);
+  padding:15px;
+  overflow:auto;
+  display:none;
+  z-index:999;
+}
+#carritoPanel{right:0;}
+.item{
+  border-bottom:1px solid #ddd;
+  padding:10px;
+}
+.item button{
+  margin:3px;
+  padding:6px 10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+.btnMas{background:#2e7d32;color:white;}
+.btnMenos{background:#ff9800;color:white;}
+.btnEliminar{background:#d32f2f;color:white;}
+details{
+  max-width:700px;
+  margin:15px auto;
+  text-align:left;
+  background:white;
+  padding:12px;
+  border-radius:15px;
+  box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+summary{font-weight:bold;cursor:pointer;}
+input,select{
+  width:95%;
+  padding:8px;
+  margin:5px 0;
+  border-radius:10px;
+  border:1px solid #aaa;
+}
+.facturaBox{
+  max-width:750px;
+  margin:20px auto;
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  display:none;
+  text-align:left;
+}
+.logoutBtn{
+  background:#d32f2f;
+  color:white;
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
-  <h1>🛒 CubaMarket 🇨🇺</h1>
+<h1>🛒 CubaMarket 🇨🇺</h1>
+<div id="totalArriba">TOTAL ACTUAL: 0 CUP</div>
 
-  <!-- LOGIN -->
-  <div class="box" id="loginPanel">
-    <h2>🔐 Registro / Acceso</h2>
+<button class="toggleBtn" onclick="mostrarCarrito()">🛍 Carrito</button>
 
-    <input id="email" placeholder="Correo electrónico">
-    <input id="password" type="password" placeholder="Contraseña">
+<!-- LOGIN -->
+<div id="loginPanel">
+  <h2>🔐 Registro / Acceso</h2>
+  <input id="email" placeholder="Correo">
+  <input id="password" type="password" placeholder="Contraseña">
+  <button onclick="registrar()">📝 Crear Cuenta</button>
+  <button onclick="login()">🔑 Entrar</button>
+</div>
 
-    <button id="btnRegister">📝 Crear Cuenta</button>
-    <button id="btnLogin">🔑 Entrar</button>
-  </div>
+<!-- TIENDA -->
+<div id="storePanel" style="display:none;">
+  <h3 id="userEmail"></h3>
+  <button class="logoutBtn" onclick="logout()">🚪 Cerrar Sesión</button>
 
-  <!-- STORE -->
-  <div class="box" id="storePanel">
-    <h2>✅ Bienvenido</h2>
+  <input id="buscador" placeholder="🔍 Buscar..." onkeyup="filtrar()">
 
-    <p id="userEmail"></p>
+  <div class="grid" id="productosGrid"></div>
 
-    <div class="walletBox">
-      💰 Saldo actual: <span id="wallet">0</span> CUP
-    </div>
+  <!-- CLIENTE -->
+  <details>
+    <summary>📌 Datos del Cliente</summary>
+    <input id="nombreCliente" placeholder="Nombre y Apellidos">
+    <input id="direccionCliente" placeholder="Dirección">
+    <input id="telefonoCliente" placeholder="Teléfono">
+  </details>
 
-    <h3>🎟️ Activar Tarjeta</h3>
-    <input id="codeInput" placeholder="Ej: CUBA-1000-A1B2">
+  <!-- ENTREGA -->
+  <details>
+    <summary>🚚 Método de Entrega</summary>
+    <select id="entrega">
+      <option>Recoger en tienda</option>
+      <option>Mensajería</option>
+    </select>
+  </details>
 
-    <button id="btnRedeem">💳 Activar Código</button>
+  <!-- PAGO -->
+  <details>
+    <summary>💳 Pago en CUP</summary>
+    <select id="pago">
+      <option selected>CUP - Pesos Cubanos</option>
+    </select>
+  </details>
 
-    <button id="btnLogout" class="btnRed">🚪 Cerrar sesión</button>
-  </div>
+</div>
 
-  <!-- FIREBASE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+<!-- PANEL CARRITO -->
+<div class="panel" id="carritoPanel">
+  <h2>🛒 Carrito</h2>
+  <div id="carritoItems"></div>
 
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+  <h3 id="subtotal"></h3>
+  <h2 id="totalFinal"></h2>
 
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc,
-      updateDoc
-    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+  <button onclick="mostrarFactura()">📄 Ver Factura PRO</button>
+  <button onclick="finalizarCompra()">✅ Finalizar Compra</button>
+  <button onclick="ocultarCarrito()">❌ Cerrar</button>
+</div>
 
-    // 🔥 CONFIG
-    const firebaseConfig = {
-      apiKey: "AIzaSyAaRXhtDzipnYG1byQ8kMT-1kv16MMgrXU",
-      authDomain: "cubamarket-2eb5f.firebaseapp.com",
-      projectId: "cubamarket-2eb5f",
-      storageBucket: "cubamarket-2eb5f.firebasestorage.app",
-      messagingSenderId: "26241880663",
-      appId: "1:26241880663:web:e6ae43fe3636f60857c912"
-    };
+<!-- FACTURA -->
+<div class="facturaBox" id="facturaBox"></div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-    // ELEMENTOS
-    const loginPanel = document.getElementById("loginPanel");
-    const storePanel = document.getElementById("storePanel");
+import {
+  getFirestore,
+  doc,setDoc,getDoc,updateDoc,
+  collection,addDoc
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    const emailInput = document.getElementById("email");
-    const passInput = document.getElementById("password");
+const firebaseConfig={
+ apiKey:"AIzaSyAaRXhtDzipnYG1byQ8kMT-1kv16MMgrXU",
+ authDomain:"cubamarket-2eb5f.firebaseapp.com",
+ projectId:"cubamarket-2eb5f"
+};
 
-    const walletSpan = document.getElementById("wallet");
-    const userEmail = document.getElementById("userEmail");
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-    // BOTONES
-    document.getElementById("btnRegister").onclick = async () => {
-      try {
-        const email = emailInput.value;
-        const password = passInput.value;
+let productos=[
+ {nombre:"🍗 Pollo",precio:2200},
+ {nombre:"🍚 Arroz",precio:750},
+ {nombre:"🥚 Huevos",precio:3000},
+ {nombre:"🛢 Aceite",precio:1400},
+ {nombre:"☕ Café",precio:2200},
+ {nombre:"🫘 Frijoles",precio:500},
+ {nombre:"🥩 Cerdo",precio:1300},
+ {nombre:"🧀 Queso",precio:2600},
+ {nombre:"🥤 Refresco",precio:450},
+ {nombre:"🍞 Pan",precio:150},
+ {nombre:"🥫 Atún",precio:1200},
+ {nombre:"🍎 Manzana",precio:900},
+ {nombre:"🍇 Uvas",precio:2000}
+];
 
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
+let carrito=[];
+let uid=null;
 
-        await setDoc(doc(db, "users", cred.user.uid), {
-          email: email,
-          wallet: 0
-        });
+function renderProductos(){
+ let grid=document.getElementById("productosGrid");
+ grid.innerHTML="";
+ productos.forEach(p=>{
+   let ex=carrito.find(x=>x.nombre==p.nombre);
+   let cant=ex?ex.cantidad:0;
 
-        alert("✅ Cuenta creada con éxito");
+   grid.innerHTML+=`
+    <div class="card">
+      <h3>${p.nombre}</h3>
+      <p>${p.precio} CUP</p>
+      <button onclick="agregar('${p.nombre}')">
+        Añadir ${cant>0?`(x${cant})`:""}
+      </button>
+    </div>`;
+ });
+}
 
-      } catch (err) {
-        alert("❌ Error: " + err.message);
-      }
-    };
+window.agregar=(nombre)=>{
+ let prod=productos.find(p=>p.nombre==nombre);
+ let ex=carrito.find(x=>x.nombre==nombre);
+ if(ex) ex.cantidad++;
+ else carrito.push({nombre,precio:prod.precio,cantidad:1});
+ actualizar();
+ guardarCarrito();
+};
 
-    document.getElementById("btnLogin").onclick = async () => {
-      try {
-        await signInWithEmailAndPassword(auth, emailInput.value, passInput.value);
-      } catch (err) {
-        alert("❌ Error: " + err.message);
-      }
-    };
+function actualizar(){
+ let subtotal=0;
+ let div=document.getElementById("carritoItems");
+ div.innerHTML="";
+ carrito.forEach((it,i)=>{
+   subtotal+=it.precio*it.cantidad;
+   div.innerHTML+=`
+    <div class="item">
+     ${it.nombre} x${it.cantidad} = ${it.precio*it.cantidad} CUP
+     <br>
+     <button class="btnMas" onclick="cambiar(${i},1)">+</button>
+     <button class="btnMenos" onclick="cambiar(${i},-1)">-</button>
+     <button class="btnEliminar" onclick="eliminar(${i})">X</button>
+    </div>`;
+ });
 
-    document.getElementById("btnLogout").onclick = async () => {
-      await signOut(auth);
-      location.reload();
-    };
+ document.getElementById("subtotal").innerText="Subtotal: "+subtotal+" CUP";
+ document.getElementById("totalFinal").innerText="TOTAL: "+subtotal+" CUP";
+ document.getElementById("totalArriba").innerText="TOTAL ACTUAL: "+subtotal+" CUP";
+ renderProductos();
+}
 
-    // SESIÓN AUTOMÁTICA
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        loginPanel.style.display = "none";
-        storePanel.style.display = "block";
+window.cambiar=(i,v)=>{
+ carrito[i].cantidad+=v;
+ if(carrito[i].cantidad<=0) carrito.splice(i,1);
+ actualizar();guardarCarrito();
+};
+window.eliminar=(i)=>{
+ carrito.splice(i,1);
+ actualizar();guardarCarrito();
+};
 
-        userEmail.innerText = "👤 " + user.email;
+window.mostrarFactura=()=>{
+ let box=document.getElementById("facturaBox");
+ box.style.display="block";
 
-        const snap = await getDoc(doc(db, "users", user.uid));
-        walletSpan.innerText = snap.data().wallet;
-      }
-    });
+ let nombre=document.getElementById("nombreCliente").value;
+ let dir=document.getElementById("direccionCliente").value;
+ let tel=document.getElementById("telefonoCliente").value;
+ let entrega=document.getElementById("entrega").value;
 
-    // 🎟️ ACTIVAR TARJETA
-    document.getElementById("btnRedeem").onclick = async () => {
+ let html=`<h2>📄 Factura PRO CubaMarket</h2>`;
+ html+=`<p><b>Cliente:</b> ${nombre}</p>`;
+ html+=`<p><b>Dirección:</b> ${dir}</p>`;
+ html+=`<p><b>Teléfono:</b> ${tel}</p>`;
+ html+=`<p><b>Entrega:</b> ${entrega}</p>`;
+ html+=`<hr>`;
 
-      const code = document.getElementById("codeInput").value.trim();
-      if (!code) return alert("⚠️ Escribe un código");
+ carrito.forEach(it=>{
+   html+=`<p>${it.nombre} x${it.cantidad}</p>`;
+ });
 
-      const user = auth.currentUser;
-      if (!user) return;
+ html+=`<hr><h2>${document.getElementById("totalFinal").innerText}</h2>`;
+ html+=`<p>💳 Pago: CUP</p>`;
+ html+=`<p>Gracias por su compra 🇨🇺</p>`;
 
-      const codeRef = doc(db, "activationCodes", code);
-      const codeSnap = await getDoc(codeRef);
+ box.innerHTML=html;
+};
 
-      if (!codeSnap.exists()) return alert("❌ Código inválido");
+window.finalizarCompra=async()=>{
+ if(carrito.length==0) return alert("Carrito vacío");
 
-      const data = codeSnap.data();
+ let nombre=document.getElementById("nombreCliente").value;
+ if(nombre=="") return alert("Pon tu nombre antes de finalizar");
 
-      if (data.used === true) {
-        return alert("⚠️ Este código ya fue usado");
-      }
+ // Guardar pedido
+ let ref=await addDoc(collection(db,"orders",uid,"lista"),{
+   cliente:nombre,
+   items:carrito,
+   total:document.getElementById("totalFinal").innerText,
+   fecha:new Date().toISOString(),
+   estado:"Pendiente"
+ });
 
-      // SUMAR SALDO
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+ alert("✅ Pedido guardado con éxito\n🧾 Comprobante: "+ref.id);
 
-      let saldoActual = userSnap.data().wallet;
-      let nuevoSaldo = saldoActual + data.amount;
+ carrito=[];
+ actualizar();
+ await guardarCarrito();
+};
 
-      await updateDoc(userRef, { wallet: nuevoSaldo });
+async function guardarCarrito(){
+ if(!uid) return;
+ await setDoc(doc(db,"carts",uid),{items:carrito});
+}
 
-      // MARCAR COMO USADO
-      await updateDoc(codeRef, { used: true });
+async function cargarCarrito(){
+ let snap=await getDoc(doc(db,"carts",uid));
+ if(snap.exists()) carrito=snap.data().items||[];
+ actualizar();
+}
 
-      walletSpan.innerText = nuevoSaldo;
+window.registrar=async()=>{
+ let email=document.getElementById("email").value;
+ let pass=document.getElementById("password").value;
+ await createUserWithEmailAndPassword(auth,email,pass);
+};
 
-      alert("✅ Recarga exitosa: +1000 CUP");
-    };
-  </script>
+window.login=async()=>{
+ await signInWithEmailAndPassword(auth,
+ document.getElementById("email").value,
+ document.getElementById("password").value);
+};
+
+window.logout=async()=>{
+ await signOut(auth);
+ location.reload();
+};
+
+onAuthStateChanged(auth,async(user)=>{
+ if(user){
+   uid=user.uid;
+   document.getElementById("loginPanel").style.display="none";
+   document.getElementById("storePanel").style.display="block";
+   document.getElementById("userEmail").innerText="👤 "+user.email;
+   await cargarCarrito();
+ }
+});
+
+window.mostrarCarrito=()=>document.getElementById("carritoPanel").style.display="block";
+window.ocultarCarrito=()=>document.getElementById("carritoPanel").style.display="none";
+
+renderProductos();
+</script>
 
 </body>
-  </html>
+    </html>
