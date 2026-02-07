@@ -130,8 +130,9 @@ input,select{
 <h1>🛒 CubaMarket 🇨🇺</h1>
 <div id="totalArriba">TOTAL ACTUAL: 0 CUP</div>
 
+<!-- BOTONES (Wallet oculto hasta login) -->
 <button class="toggleBtn" onclick="mostrarCarrito()">🛍 Carrito</button>
-<button class="toggleBtn" onclick="mostrarWallet()">👛 Wallet</button>
+<button class="toggleBtn" id="btnWallet" style="display:none;" onclick="mostrarWallet()">👛 Wallet</button>
 
 <!-- LOGIN -->
 <div id="loginPanel">
@@ -238,6 +239,7 @@ let carrito=[];
 let uid=null;
 let saldo=0;
 
+/* PRODUCTOS */
 function renderProductos(){
  let grid=document.getElementById("productosGrid");
  grid.innerHTML="";
@@ -260,6 +262,7 @@ window.agregar=(nombre)=>{
  guardarCarrito();
 };
 
+/* CARRITO */
 function actualizar(){
  let subtotal=0;
  let div=document.getElementById("carritoItems");
@@ -284,24 +287,22 @@ window.cambiar=(i,v)=>{
  if(carrito[i].cantidad<=0) carrito.splice(i,1);
  actualizar();guardarCarrito();
 };
+
 window.eliminar=(i)=>{
  carrito.splice(i,1);
  actualizar();guardarCarrito();
 };
 
+/* FACTURA */
 window.mostrarFactura=()=>{
  let box=document.getElementById("facturaBox");
  box.style.display="block";
 
  let nombre=document.getElementById("nombreCliente").value;
- let dir=document.getElementById("direccionCliente").value;
- let tel=document.getElementById("telefonoCliente").value;
  let entrega=document.getElementById("entrega").value;
 
  let html=`<h2>📄 FACTURA CubaMarket</h2>`;
  html+=`<p><b>Cliente:</b> ${nombre}</p>`;
- html+=`<p><b>Dirección:</b> ${dir}</p>`;
- html+=`<p><b>Teléfono:</b> ${tel}</p>`;
  html+=`<p><b>Entrega:</b> ${entrega}</p><hr>`;
 
  carrito.forEach(it=>{
@@ -312,23 +313,18 @@ window.mostrarFactura=()=>{
  box.innerHTML=html;
 };
 
+/* WHATSAPP */
 window.enviarFacturaWhats=()=>{
- let nombre=document.getElementById("nombreCliente").value;
- let entrega=document.getElementById("entrega").value;
- let pago="CUP";
-
- let msg="Hola quiero comprar estos productos:%0A%0A";
+ let msg="Hola quiero comprar:%0A%0A";
  carrito.forEach(it=>{
    msg+=`${it.nombre} x${it.cantidad}%0A`;
  });
- msg+=`%0AEntrega: ${entrega}`;
- msg+=`%0APago: ${pago}`;
- msg+=`%0ACliente: ${nombre}`;
  msg+=`%0A${document.getElementById("totalFinal").innerText}`;
 
- window.open("https://wa.me/5350000000?text="+msg);
+ window.open("https://wa.me/5358752291?text="+msg);
 };
 
+/* GUARDAR CARRITO */
 async function guardarCarrito(){
  if(!uid) return;
  await setDoc(doc(db,"carts",uid),{items:carrito});
@@ -340,6 +336,7 @@ async function cargarCarrito(){
  actualizar();
 }
 
+/* AUTH */
 window.registrar=async()=>{
  let email=document.getElementById("email").value;
  let pass=document.getElementById("password").value;
@@ -349,6 +346,8 @@ window.registrar=async()=>{
  await setDoc(doc(db,"users",cred.user.uid),{
    wallet:0
  });
+
+ alert("✅ Cuenta creada");
 };
 
 window.login=async()=>{
@@ -362,22 +361,28 @@ window.logout=async()=>{
  location.reload();
 };
 
+/* SESIÓN */
 onAuthStateChanged(auth,async(user)=>{
  if(user){
    uid=user.uid;
 
    document.getElementById("loginPanel").style.display="none";
    document.getElementById("storePanel").style.display="block";
+
+   document.getElementById("btnWallet").style.display="inline-block";
+
    document.getElementById("userEmail").innerText="👤 "+user.email;
 
    await cargarCarrito();
 
    let snap=await getDoc(doc(db,"users",uid));
    saldo=snap.data().wallet;
+
    document.getElementById("saldoWallet").innerText=saldo+" CUP";
  }
 });
 
+/* WALLET */
 window.redeemCode=async()=>{
  let code=document.getElementById("codeInput").value.trim();
  if(code=="") return alert("Escribe un código");
@@ -386,12 +391,13 @@ window.redeemCode=async()=>{
    saldo+=1000;
    await updateDoc(doc(db,"users",uid),{wallet:saldo});
    document.getElementById("saldoWallet").innerText=saldo+" CUP";
-   alert("✅ Recarga exitosa +1000 CUP");
+   alert("✅ Recarga +1000 CUP");
  }else{
    alert("❌ Código inválido");
  }
 };
 
+/* PANEL CONTROL */
 window.mostrarCarrito=()=>document.getElementById("carritoPanel").style.display="block";
 window.ocultarCarrito=()=>document.getElementById("carritoPanel").style.display="none";
 
@@ -402,4 +408,4 @@ renderProductos();
 </script>
 
 </body>
-</html>
+  </html>
