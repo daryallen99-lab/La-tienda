@@ -1,290 +1,243 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CubaMarket 🛒🇨🇺</title>
+  <meta charset="UTF-8">
+  <title>CubaMarket 🇨🇺</title>
 
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#111;
-  color:white;
-  text-align:center;
-}
-header{
-  background:#000;
-  padding:15px;
-  font-size:25px;
-  color:#00ffcc;
-}
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:20px;
-}
-.card{
-  background:#1a1a1a;
-  padding:15px;
-  margin:15px;
-  border-radius:15px;
-  box-shadow:0 0 10px rgba(0,255,200,0.3);
-}
-input{
-  width:90%;
-  padding:10px;
-  margin:10px;
-  border-radius:10px;
-  border:none;
-}
-button{
-  padding:10px 15px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:bold;
-  margin:5px;
-}
-.btn{
-  background:#00ffcc;
-  color:black;
-}
-.btn:hover{
-  opacity:0.8;
-}
-.product{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px;
-  border-bottom:1px solid #333;
-}
-.qty{
-  font-size:18px;
-  margin:0 10px;
-}
-.hidden{
-  display:none;
-}
-</style>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: radial-gradient(circle, #000, #050505);
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 45px;
+      color: #00ffcc;
+      text-shadow: 0 0 15px #00ffcc;
+    }
+
+    .box {
+      max-width: 420px;
+      margin: 30px auto;
+      background: rgba(20, 20, 20, 0.95);
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 0 25px #00ffcc;
+    }
+
+    input {
+      width: 90%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 92%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 14px;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(90deg, #00ffcc, #00ffaa);
+      color: black;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+      opacity: 0.9;
+    }
+
+    .btnRed {
+      background: linear-gradient(90deg, #ff4444, #ff2222);
+      color: white;
+    }
+
+    #storePanel {
+      display: none;
+    }
+
+    .walletBox {
+      font-size: 22px;
+      margin: 15px;
+      padding: 15px;
+      border-radius: 15px;
+      background: rgba(0, 255, 204, 0.08);
+      box-shadow: 0 0 10px #00ffcc;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>CubaMarket 🛒🇨🇺</header>
+  <h1>🛒 CubaMarket 🇨🇺</h1>
 
-<div class="container">
+  <!-- LOGIN -->
+  <div class="box" id="loginPanel">
+    <h2>🔐 Registro / Acceso</h2>
 
-<!-- LOGIN -->
-<div id="loginBox" class="card">
-  <h2>🔐 Registro / Acceso</h2>
-  <input type="email" id="email" placeholder="Correo electrónico">
-  <input type="password" id="password" placeholder="Contraseña">
+    <input id="email" placeholder="Correo electrónico">
+    <input id="password" type="password" placeholder="Contraseña">
 
-  <button class="btn" onclick="register()">📝 Registrarme</button>
-  <button class="btn" onclick="login()">🔑 Entrar</button>
-</div>
-
-<!-- TIENDA -->
-<div id="storeBox" class="hidden">
-
-  <div class="card">
-    <h2>👤 Bienvenido: <span id="userEmail"></span></h2>
-    <h3>💰 Saldo: <span id="balance">0</span> CUP</h3>
-    <button class="btn" onclick="logout()">🚪 Salir</button>
+    <button id="btnRegister">📝 Crear Cuenta</button>
+    <button id="btnLogin">🔑 Entrar</button>
   </div>
 
-  <!-- RECARGA -->
-  <div class="card">
-    <h2>➕ Recargar Billetera</h2>
-    <input type="number" id="rechargeAmount" placeholder="Monto a recargar CUP">
+  <!-- STORE -->
+  <div class="box" id="storePanel">
+    <h2>✅ Bienvenido</h2>
 
-    <button class="btn" onclick="sendRecharge()">📲 Solicitar por WhatsApp</button>
+    <p id="userEmail"></p>
 
-    <input type="text" id="codeInput" placeholder="Código de activación">
-    <button class="btn" onclick="activateCode()">✅ Activar Código</button>
+    <div class="walletBox">
+      💰 Saldo actual: <span id="wallet">0</span> CUP
+    </div>
+
+    <h3>🎟️ Activar Tarjeta</h3>
+    <input id="codeInput" placeholder="Ej: CUBA-1000-A1B2">
+
+    <button id="btnRedeem">💳 Activar Código</button>
+
+    <button id="btnLogout" class="btnRed">🚪 Cerrar sesión</button>
   </div>
 
-  <!-- PRODUCTOS -->
-  <div class="card">
-    <h2>🛍️ Productos</h2>
-    <div id="products"></div>
-    <h2>🧾 Total: <span id="total">0</span> CUP</h2>
-  </div>
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 
-</div>
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-</div>
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      updateDoc
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-<!-- FIREBASE -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } 
-from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+    // 🔥 CONFIG
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaRXhtDzipnYG1byQ8kMT-1kv16MMgrXU",
+      authDomain: "cubamarket-2eb5f.firebaseapp.com",
+      projectId: "cubamarket-2eb5f",
+      storageBucket: "cubamarket-2eb5f.firebasestorage.app",
+      messagingSenderId: "26241880663",
+      appId: "1:26241880663:web:e6ae43fe3636f60857c912"
+    };
 
-import { getFirestore, doc, setDoc, getDoc, updateDoc } 
-from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAaRXhtDzipnYG1byQ8kMT-1kv16MMgrXU",
-  authDomain: "cubamarket-2eb5f.firebaseapp.com",
-  projectId: "cubamarket-2eb5f",
-  storageBucket: "cubamarket-2eb5f.firebasestorage.app",
-  messagingSenderId: "26241880663",
-  appId: "1:26241880663:web:e6ae43fe3636f60857c912"
-};
+    // ELEMENTOS
+    const loginPanel = document.getElementById("loginPanel");
+    const storePanel = document.getElementById("storePanel");
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    const emailInput = document.getElementById("email");
+    const passInput = document.getElementById("password");
 
-let currentUser=null;
-let cart={};
-let total=0;
+    const walletSpan = document.getElementById("wallet");
+    const userEmail = document.getElementById("userEmail");
 
-// PRODUCTOS (30 reales aprox Cuba 2026)
-const productList=[
- {name:"🍗 Pollo 1kg", price:1200},
- {name:"🥚 Cartón de huevos", price:2500},
- {name:"🍚 Arroz 1kg", price:500},
- {name:"🛢️ Aceite 1L", price:1800},
- {name:"🥛 Leche en polvo", price:3500},
- {name:"🍞 Pan", price:250},
- {name:"🧀 Queso 1lb", price:2200},
- {name:"🍖 Carne de cerdo", price:2000},
- {name:"🍝 Pasta", price:700},
- {name:"🥫 Salchichas", price:1500},
- {name:"🍫 Chocolate", price:800},
- {name:"🥤 Refresco", price:600},
- {name:"☕ Café", price:2000},
- {name:"🍎 Manzanas", price:1500},
- {name:"🍌 Plátanos", price:400},
- {name:"🧂 Sal", price:200},
- {name:"🍬 Azúcar", price:450},
- {name:"🧼 Jabón", price:500},
- {name:"🧴 Shampoo", price:2500},
- {name:"🪥 Pasta dental", price:1200},
- {name:"🧻 Papel sanitario", price:2000},
- {name:"💊 Vitaminas", price:3500},
- {name:"📱 Recarga móvil", price:1000},
- {name:"💡 Bombillo LED", price:1800},
- {name:"🪫 PowerBank", price:8500},
- {name:"🎧 Audífonos", price:6000},
- {name:"📺 TV 32 pulgadas", price:95000},
- {name:"❄️ Ventilador", price:15000},
- {name:"🧊 Refrigerador", price:250000},
- {name:"🛵 Moto eléctrica", price:800000},
-];
+    // BOTONES
+    document.getElementById("btnRegister").onclick = async () => {
+      try {
+        const email = emailInput.value;
+        const password = passInput.value;
 
-// MOSTRAR PRODUCTOS
-function loadProducts(){
- let html="";
- productList.forEach((p,i)=>{
-   html+=`
-   <div class="product">
-     <span>${p.name} - ${p.price} CUP</span>
-     <div>
-       <button onclick="changeQty(${i},-1)">➖</button>
-       <span class="qty" id="qty${i}">0</span>
-       <button onclick="changeQty(${i},1)">➕</button>
-     </div>
-   </div>`;
- });
- document.getElementById("products").innerHTML=html;
-}
-loadProducts();
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
 
-// CAMBIAR CANTIDAD
-window.changeQty=(i,delta)=>{
- if(!cart[i]) cart[i]=0;
- cart[i]+=delta;
- if(cart[i]<0) cart[i]=0;
- document.getElementById("qty"+i).innerText=cart[i];
- calculateTotal();
-};
+        await setDoc(doc(db, "users", cred.user.uid), {
+          email: email,
+          wallet: 0
+        });
 
-// CALCULAR TOTAL
-function calculateTotal(){
- total=0;
- for(let i in cart){
-   total+=cart[i]*productList[i].price;
- }
- document.getElementById("total").innerText=total;
-}
+        alert("✅ Cuenta creada con éxito");
 
-// REGISTRO
-window.register=async()=>{
- const email=document.getElementById("email").value;
- const pass=document.getElementById("password").value;
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    };
 
- const userCred=await createUserWithEmailAndPassword(auth,email,pass);
+    document.getElementById("btnLogin").onclick = async () => {
+      try {
+        await signInWithEmailAndPassword(auth, emailInput.value, passInput.value);
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    };
 
- await setDoc(doc(db,"users",userCred.user.uid),{
-   email:email,
-   balance:0
- });
+    document.getElementById("btnLogout").onclick = async () => {
+      await signOut(auth);
+      location.reload();
+    };
 
- alert("✅ Usuario registrado!");
-};
+    // SESIÓN AUTOMÁTICA
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        loginPanel.style.display = "none";
+        storePanel.style.display = "block";
 
-// LOGIN
-window.login=async()=>{
- const email=document.getElementById("email").value;
- const pass=document.getElementById("password").value;
+        userEmail.innerText = "👤 " + user.email;
 
- await signInWithEmailAndPassword(auth,email,pass);
-};
+        const snap = await getDoc(doc(db, "users", user.uid));
+        walletSpan.innerText = snap.data().wallet;
+      }
+    });
 
-// LOGOUT
-window.logout=async()=>{
- await signOut(auth);
-};
+    // 🎟️ ACTIVAR TARJETA
+    document.getElementById("btnRedeem").onclick = async () => {
 
-// SESIÓN
-onAuthStateChanged(auth,async(user)=>{
- if(user){
-   currentUser=user;
-   document.getElementById("loginBox").classList.add("hidden");
-   document.getElementById("storeBox").classList.remove("hidden");
-   document.getElementById("userEmail").innerText=user.email;
+      const code = document.getElementById("codeInput").value.trim();
+      if (!code) return alert("⚠️ Escribe un código");
 
-   const snap=await getDoc(doc(db,"users",user.uid));
-   document.getElementById("balance").innerText=snap.data().balance;
- }else{
-   document.getElementById("loginBox").classList.remove("hidden");
-   document.getElementById("storeBox").classList.add("hidden");
- }
-});
+      const user = auth.currentUser;
+      if (!user) return;
 
-// RECARGA WHATSAPP
-window.sendRecharge=()=>{
- const amount=document.getElementById("rechargeAmount").value;
- const msg=`Hola, quiero recargar mi billetera CubaMarket con ${amount} CUP`;
- window.open("https://wa.me/5353420021?text="+encodeURIComponent(msg));
-};
+      const codeRef = doc(db, "activationCodes", code);
+      const codeSnap = await getDoc(codeRef);
 
-// ACTIVAR CÓDIGO MANUAL
-window.activateCode=async()=>{
- const code=document.getElementById("codeInput").value;
+      if (!codeSnap.exists()) return alert("❌ Código inválido");
 
- if(code==="CUBA2026"){
-   const amount=parseInt(document.getElementById("rechargeAmount").value);
+      const data = codeSnap.data();
 
-   const ref=doc(db,"users",currentUser.uid);
-   const snap=await getDoc(ref);
+      if (data.used === true) {
+        return alert("⚠️ Este código ya fue usado");
+      }
 
-   let newBal=snap.data().balance+amount;
+      // SUMAR SALDO
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
 
-   await updateDoc(ref,{balance:newBal});
-   document.getElementById("balance").innerText=newBal;
+      let saldoActual = userSnap.data().wallet;
+      let nuevoSaldo = saldoActual + data.amount;
 
-   alert("✅ Saldo agregado correctamente!");
- }else{
-   alert("❌ Código inválido");
- }
-};
-</script>
+      await updateDoc(userRef, { wallet: nuevoSaldo });
+
+      // MARCAR COMO USADO
+      await updateDoc(codeRef, { used: true });
+
+      walletSpan.innerText = nuevoSaldo;
+
+      alert("✅ Recarga exitosa: +1000 CUP");
+    };
+  </script>
 
 </body>
-</html>
+  </html>
