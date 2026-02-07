@@ -70,6 +70,8 @@ h1{
   z-index:999;
 }
 #carritoPanel{right:0;}
+#walletPanel{left:0;}
+
 .item{
   border-bottom:1px solid #ddd;
   padding:10px;
@@ -84,6 +86,7 @@ h1{
 .btnMas{background:#2e7d32;color:white;}
 .btnMenos{background:#ff9800;color:white;}
 .btnEliminar{background:#d32f2f;color:white;}
+
 details{
   max-width:700px;
   margin:15px auto;
@@ -128,6 +131,7 @@ input,select{
 <div id="totalArriba">TOTAL ACTUAL: 0 CUP</div>
 
 <button class="toggleBtn" onclick="mostrarCarrito()">🛍 Carrito</button>
+<button class="toggleBtn" onclick="mostrarWallet()">👛 Wallet</button>
 
 <!-- LOGIN -->
 <div id="loginPanel">
@@ -143,11 +147,8 @@ input,select{
   <h3 id="userEmail"></h3>
   <button class="logoutBtn" onclick="logout()">🚪 Cerrar Sesión</button>
 
-  <input id="buscador" placeholder="🔍 Buscar..." onkeyup="filtrar()">
-
   <div class="grid" id="productosGrid"></div>
 
-  <!-- CLIENTE -->
   <details>
     <summary>📌 Datos del Cliente</summary>
     <input id="nombreCliente" placeholder="Nombre y Apellidos">
@@ -155,7 +156,6 @@ input,select{
     <input id="telefonoCliente" placeholder="Teléfono">
   </details>
 
-  <!-- ENTREGA -->
   <details>
     <summary>🚚 Método de Entrega</summary>
     <select id="entrega">
@@ -164,27 +164,35 @@ input,select{
     </select>
   </details>
 
-  <!-- PAGO -->
   <details>
-    <summary>💳 Pago en CUP</summary>
+    <summary>💳 Pago</summary>
     <select id="pago">
       <option selected>CUP - Pesos Cubanos</option>
     </select>
   </details>
-
 </div>
 
-<!-- PANEL CARRITO -->
+<!-- CARRITO -->
 <div class="panel" id="carritoPanel">
   <h2>🛒 Carrito</h2>
   <div id="carritoItems"></div>
-
   <h3 id="subtotal"></h3>
   <h2 id="totalFinal"></h2>
 
-  <button onclick="mostrarFactura()">📄 Ver Factura PRO</button>
-  <button onclick="finalizarCompra()">✅ Finalizar Compra</button>
+  <button onclick="mostrarFactura()">📄 Ver Factura</button>
+  <button onclick="enviarFacturaWhats()">📲 Enviar por WhatsApp</button>
   <button onclick="ocultarCarrito()">❌ Cerrar</button>
+</div>
+
+<!-- WALLET -->
+<div class="panel" id="walletPanel">
+  <h2>👛 Wallet</h2>
+  <h1 id="saldoWallet">0 CUP</h1>
+
+  <input id="codeInput" placeholder="Código de activación">
+  <button onclick="redeemCode()">💳 Activar Código</button>
+
+  <button onclick="ocultarWallet()">❌ Cerrar</button>
 </div>
 
 <!-- FACTURA -->
@@ -202,8 +210,7 @@ import {
 
 import {
   getFirestore,
-  doc,setDoc,getDoc,updateDoc,
-  collection,addDoc
+  doc,setDoc,getDoc,updateDoc
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 const firebaseConfig={
@@ -224,31 +231,22 @@ let productos=[
  {nombre:"☕ Café",precio:2200},
  {nombre:"🫘 Frijoles",precio:500},
  {nombre:"🥩 Cerdo",precio:1300},
- {nombre:"🧀 Queso",precio:2600},
- {nombre:"🥤 Refresco",precio:450},
- {nombre:"🍞 Pan",precio:150},
- {nombre:"🥫 Atún",precio:1200},
- {nombre:"🍎 Manzana",precio:900},
- {nombre:"🍇 Uvas",precio:2000}
+ {nombre:"🧀 Queso",precio:2600}
 ];
 
 let carrito=[];
 let uid=null;
+let saldo=0;
 
 function renderProductos(){
  let grid=document.getElementById("productosGrid");
  grid.innerHTML="";
  productos.forEach(p=>{
-   let ex=carrito.find(x=>x.nombre==p.nombre);
-   let cant=ex?ex.cantidad:0;
-
    grid.innerHTML+=`
     <div class="card">
       <h3>${p.nombre}</h3>
       <p>${p.precio} CUP</p>
-      <button onclick="agregar('${p.nombre}')">
-        Añadir ${cant>0?`(x${cant})`:""}
-      </button>
+      <button onclick="agregar('${p.nombre}')">➕ Añadir</button>
     </div>`;
  });
 }
@@ -270,18 +268,15 @@ function actualizar(){
    subtotal+=it.precio*it.cantidad;
    div.innerHTML+=`
     <div class="item">
-     ${it.nombre} x${it.cantidad} = ${it.precio*it.cantidad} CUP
-     <br>
+     ${it.nombre} x${it.cantidad} = ${it.precio*it.cantidad} CUP<br>
      <button class="btnMas" onclick="cambiar(${i},1)">+</button>
      <button class="btnMenos" onclick="cambiar(${i},-1)">-</button>
      <button class="btnEliminar" onclick="eliminar(${i})">X</button>
     </div>`;
  });
-
  document.getElementById("subtotal").innerText="Subtotal: "+subtotal+" CUP";
  document.getElementById("totalFinal").innerText="TOTAL: "+subtotal+" CUP";
  document.getElementById("totalArriba").innerText="TOTAL ACTUAL: "+subtotal+" CUP";
- renderProductos();
 }
 
 window.cambiar=(i,v)=>{
@@ -303,44 +298,35 @@ window.mostrarFactura=()=>{
  let tel=document.getElementById("telefonoCliente").value;
  let entrega=document.getElementById("entrega").value;
 
- let html=`<h2>📄 Factura PRO CubaMarket</h2>`;
+ let html=`<h2>📄 FACTURA CubaMarket</h2>`;
  html+=`<p><b>Cliente:</b> ${nombre}</p>`;
  html+=`<p><b>Dirección:</b> ${dir}</p>`;
  html+=`<p><b>Teléfono:</b> ${tel}</p>`;
- html+=`<p><b>Entrega:</b> ${entrega}</p>`;
- html+=`<hr>`;
+ html+=`<p><b>Entrega:</b> ${entrega}</p><hr>`;
 
  carrito.forEach(it=>{
    html+=`<p>${it.nombre} x${it.cantidad}</p>`;
  });
 
  html+=`<hr><h2>${document.getElementById("totalFinal").innerText}</h2>`;
- html+=`<p>💳 Pago: CUP</p>`;
- html+=`<p>Gracias por su compra 🇨🇺</p>`;
-
  box.innerHTML=html;
 };
 
-window.finalizarCompra=async()=>{
- if(carrito.length==0) return alert("Carrito vacío");
-
+window.enviarFacturaWhats=()=>{
  let nombre=document.getElementById("nombreCliente").value;
- if(nombre=="") return alert("Pon tu nombre antes de finalizar");
+ let entrega=document.getElementById("entrega").value;
+ let pago="CUP";
 
- // Guardar pedido
- let ref=await addDoc(collection(db,"orders",uid,"lista"),{
-   cliente:nombre,
-   items:carrito,
-   total:document.getElementById("totalFinal").innerText,
-   fecha:new Date().toISOString(),
-   estado:"Pendiente"
+ let msg="Hola quiero comprar estos productos:%0A%0A";
+ carrito.forEach(it=>{
+   msg+=`${it.nombre} x${it.cantidad}%0A`;
  });
+ msg+=`%0AEntrega: ${entrega}`;
+ msg+=`%0APago: ${pago}`;
+ msg+=`%0ACliente: ${nombre}`;
+ msg+=`%0A${document.getElementById("totalFinal").innerText}`;
 
- alert("✅ Pedido guardado con éxito\n🧾 Comprobante: "+ref.id);
-
- carrito=[];
- actualizar();
- await guardarCarrito();
+ window.open("https://wa.me/5350000000?text="+msg);
 };
 
 async function guardarCarrito(){
@@ -357,7 +343,12 @@ async function cargarCarrito(){
 window.registrar=async()=>{
  let email=document.getElementById("email").value;
  let pass=document.getElementById("password").value;
- await createUserWithEmailAndPassword(auth,email,pass);
+
+ let cred=await createUserWithEmailAndPassword(auth,email,pass);
+
+ await setDoc(doc(db,"users",cred.user.uid),{
+   wallet:0
+ });
 };
 
 window.login=async()=>{
@@ -374,18 +365,41 @@ window.logout=async()=>{
 onAuthStateChanged(auth,async(user)=>{
  if(user){
    uid=user.uid;
+
    document.getElementById("loginPanel").style.display="none";
    document.getElementById("storePanel").style.display="block";
    document.getElementById("userEmail").innerText="👤 "+user.email;
+
    await cargarCarrito();
+
+   let snap=await getDoc(doc(db,"users",uid));
+   saldo=snap.data().wallet;
+   document.getElementById("saldoWallet").innerText=saldo+" CUP";
  }
 });
 
+window.redeemCode=async()=>{
+ let code=document.getElementById("codeInput").value.trim();
+ if(code=="") return alert("Escribe un código");
+
+ if(code=="CUBA1000"){
+   saldo+=1000;
+   await updateDoc(doc(db,"users",uid),{wallet:saldo});
+   document.getElementById("saldoWallet").innerText=saldo+" CUP";
+   alert("✅ Recarga exitosa +1000 CUP");
+ }else{
+   alert("❌ Código inválido");
+ }
+};
+
 window.mostrarCarrito=()=>document.getElementById("carritoPanel").style.display="block";
 window.ocultarCarrito=()=>document.getElementById("carritoPanel").style.display="none";
+
+window.mostrarWallet=()=>document.getElementById("walletPanel").style.display="block";
+window.ocultarWallet=()=>document.getElementById("walletPanel").style.display="none";
 
 renderProductos();
 </script>
 
 </body>
-    </html>
+</html>
