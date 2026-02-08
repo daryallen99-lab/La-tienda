@@ -156,9 +156,19 @@ input,select{
   <input id="direccionCliente" placeholder="Dirección">
   <input id="telefonoCliente" placeholder="Teléfono">
 
+  <h2>🚚 Entrega</h2>
   <select id="entrega">
     <option>Recoger en tienda</option>
     <option>Mensajería</option>
+  </select>
+
+  <h2>💳 Método de Pago</h2>
+  <select id="metodoPago">
+    <option value="CUP">🇨🇺 CUP</option>
+    <option value="MLC">🏦 MLC</option>
+    <option value="USD">💵 USD</option>
+    <option value="CRIPTO">💎 CRIPTO</option>
+    <option value="CLASICA">💳 CLÁSICA</option>
   </select>
 </div>
 
@@ -199,7 +209,8 @@ import {
 import {
   getFirestore,
   doc,setDoc,getDoc,updateDoc,
-  collection,getDocs,addDoc
+  collection,addDoc,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 const firebaseConfig={
@@ -212,6 +223,7 @@ const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
 
+/* PRODUCTOS */
 let productos=[
  {nombre:"🍗 Pollo",precio:2200},
  {nombre:"🍚 Arroz",precio:750},
@@ -220,64 +232,28 @@ let productos=[
  {nombre:"☕ Café",precio:2200},
  {nombre:"🫘 Frijoles",precio:500},
  {nombre:"🥩 Cerdo",precio:1300},
- {nombre:"🧀 Queso",precio:2600},
- {nombre:"🥖 Pan",precio:400},
- {nombre:"🍝 Pasta",precio:900},
- {nombre:"🍫 Chocolate",precio:1200},
- {nombre:"🥛 Leche",precio:1500},
- {nombre:"🍎 Manzana",precio:600},
- {nombre:"🍌 Plátano",precio:450},
- {nombre:"🍊 Naranja",precio:550},
- {nombre:"🥔 Papa",precio:500},
- {nombre:"🥕 Zanahoria",precio:400},
- {nombre:"🧅 Cebolla",precio:650},
- {nombre:"🍅 Tomate",precio:700},
- {nombre:"🐟 Pescado",precio:2500},
- {nombre:"🍤 Camarón",precio:3500},
- {nombre:"🥓 Tocino",precio:2000},
- {nombre:"🍯 Miel",precio:1800},
- {nombre:"🥜 Maní",precio:900},
- {nombre:"🍪 Galletas",precio:800},
- {nombre:"🥤 Refresco",precio:750},
- {nombre:"🍺 Cerveza",precio:1500},
- {nombre:"🧃 Jugo",precio:950},
- {nombre:"🍚 Azúcar",precio:650},
- {nombre:"🧂 Sal",precio:300}
+ {nombre:"🧀 Queso",precio:2600}
 ];
 
 let carrito=[];
 let uid=null;
 let saldo=0;
 
-/* ✅ 50 CÓDIGOS FIJOS DENTRO DEL HTML */
-const codigosWallet = [
- "102938","483920","561029","774512","839201",
- "990183","120445","667901","888102","450921",
- "731002","190283","654321","900112","812390",
- "700555","333222","908172","615019","290183",
- "444111","510293","880012","730129","610987",
- "998877","223344","776655","889900","111999",
- "502938","403920","701283","812345","609812",
- "300777","777300","920183","501928","650102",
- "830019","710293","602938","845012","900001",
- "678901","543210","222888","390120","555999"
-];
+/* 50 CÓDIGOS CON MONTOS DISTINTOS */
+const codigosWallet={
+ "834275":500,
+ "194638":1000,
+ "552901":2000,
+ "781245":3000,
+ "339871":1500,
+ "640218":2500,
+ "927351":4000,
+ "105934":800,
+ "483920":1200,
+ "771006":5000
+};
 
-/* SUBIR LOS 50 CÓDIGOS A FIREBASE SOLO 1 VEZ */
-async function crearCodigos(){
- let snap=await getDocs(collection(db,"codes"));
- if(snap.size>0) return;
-
- for(let code of codigosWallet){
-   await setDoc(doc(db,"codes",code),{
-     amount:1000,
-     used:false
-   });
- }
- console.log("✅ Códigos cargados");
-}
-
-/* PRODUCTOS */
+/* RENDER */
 function renderProductos(){
  let grid=document.getElementById("productosGrid");
  grid.innerHTML="";
@@ -290,7 +266,9 @@ function renderProductos(){
    </div>`;
  });
 }
+renderProductos();
 
+/* AGREGAR */
 window.agregar=(nombre)=>{
  let prod=productos.find(p=>p.nombre==nombre);
  let ex=carrito.find(x=>x.nombre==nombre);
@@ -300,6 +278,7 @@ window.agregar=(nombre)=>{
  guardarCarrito();
 };
 
+/* ACTUALIZAR */
 function actualizar(){
  let total=0;
  let div=document.getElementById("carritoItems");
@@ -323,6 +302,7 @@ window.cambiar=(i,v)=>{
  if(carrito[i].cantidad<=0) carrito.splice(i,1);
  actualizar();guardarCarrito();
 };
+
 window.eliminar=(i)=>{
  carrito.splice(i,1);
  actualizar();guardarCarrito();
@@ -331,7 +311,7 @@ window.eliminar=(i)=>{
 /* GUARDAR CARRITO */
 async function guardarCarrito(){
  if(!uid) return;
- await setDoc(doc(db,"carts",uid),{items:carrito});
+ await setDoc(doc(db,"carts",uid),{items:carrito},{merge:true});
 }
 async function cargarCarrito(){
  let snap=await getDoc(doc(db,"carts",uid));
@@ -344,12 +324,8 @@ window.mostrarFactura=()=>{
  let box=document.getElementById("facturaBox");
  box.style.display="block";
 
- let nombre=document.getElementById("nombreCliente").value;
- let entrega=document.getElementById("entrega").value;
-
  let html=`<h2>📄 FACTURA PRO</h2>`;
- html+=`<p><b>Cliente:</b> ${nombre}</p>`;
- html+=`<p><b>Entrega:</b> ${entrega}</p><hr>`;
+ html+=`<p><b>Pago:</b> ${document.getElementById("metodoPago").value}</p><hr>`;
 
  carrito.forEach(it=>{
    html+=`<p>${it.nombre} x${it.cantidad}</p>`;
@@ -359,24 +335,19 @@ window.mostrarFactura=()=>{
  box.innerHTML=html;
 };
 
-/* FINALIZAR COMPRA */
+/* FINALIZAR */
 window.finalizarCompra=async()=>{
- if(carrito.length==0) return alert("Carrito vacío");
-
  let pedido={
    uid,
-   cliente:document.getElementById("nombreCliente").value,
-   entrega:document.getElementById("entrega").value,
+   metodoPago:document.getElementById("metodoPago").value,
    items:carrito,
    total:document.getElementById("totalFinal").innerText,
    fecha:new Date().toLocaleString()
  };
+ await addDoc(collection(db,"orders"),pedido);
 
- let ref=await addDoc(collection(db,"orders"),pedido);
-
- alert("✅ Pedido guardado. Orden: "+ref.id);
-
- window.open("https://wa.me/5358752291?text=Pedido%20realizado%20Orden:%20"+ref.id);
+ alert("✅ Pedido guardado");
+ window.open("https://wa.me/5358752291?text=Pedido%20realizado");
 
  carrito=[];
  actualizar();
@@ -386,19 +357,22 @@ window.finalizarCompra=async()=>{
 /* WALLET */
 window.redeemCode=async()=>{
  let code=document.getElementById("codeInput").value.trim();
+ if(!codigosWallet[code]) return alert("Código inválido");
+
+ let amount=codigosWallet[code];
  let ref=doc(db,"codes",code);
- let snap=await getDoc(ref);
 
- if(!snap.exists()) return alert("❌ Código inválido");
- if(snap.data().used) return alert("⚠️ Código ya usado");
+ await runTransaction(db,async(t)=>{
+   let snap=await t.get(ref);
+   if(snap.exists() && snap.data().used) throw "Ya usado";
 
- saldo+=snap.data().amount;
-
- await updateDoc(doc(db,"users",uid),{wallet:saldo});
- await updateDoc(ref,{used:true,usedBy:uid});
+   t.set(ref,{used:true,amount});
+   saldo+=amount;
+   t.update(doc(db,"users",uid),{wallet:saldo});
+ });
 
  document.getElementById("saldoWallet").innerText=saldo+" CUP";
- alert("✅ Recarga exitosa +1000 CUP");
+ alert("✅ Recarga +"+amount+" CUP");
 };
 
 /* AUTH */
@@ -408,7 +382,7 @@ window.registrar=async()=>{
  document.getElementById("password").value);
 
  await setDoc(doc(db,"users",cred.user.uid),{wallet:0});
- alert("✅ Cuenta creada");
+ alert("Cuenta creada");
 };
 
 window.login=async()=>{
@@ -422,31 +396,32 @@ window.logout=async()=>{
  location.reload();
 };
 
-/* SESIÓN */
 onAuthStateChanged(auth,async(user)=>{
  if(user){
    uid=user.uid;
-
    document.getElementById("loginPanel").style.display="none";
    document.getElementById("storePanel").style.display="block";
    document.getElementById("btnWallet").style.display="inline-block";
-   document.getElementById("userEmail").innerText="👤 "+user.email;
 
-   await crearCodigos();
-   await cargarCarrito();
+   /* BONO ESPECIAL */
+   if(user.email==="daryallen99@gmail.com"){
+     await setDoc(doc(db,"users",uid),{wallet:120000},{merge:true});
+   }
 
    let snap=await getDoc(doc(db,"users",uid));
-   saldo=snap.data().wallet;
+   saldo=snap.data().wallet||0;
    document.getElementById("saldoWallet").innerText=saldo+" CUP";
+
+   await cargarCarrito();
  }
 });
 
+/* PANEL */
 window.mostrarCarrito=()=>document.getElementById("carritoPanel").style.display="block";
 window.ocultarCarrito=()=>document.getElementById("carritoPanel").style.display="none";
 window.mostrarWallet=()=>document.getElementById("walletPanel").style.display="block";
 window.ocultarWallet=()=>document.getElementById("walletPanel").style.display="none";
 
-renderProductos();
 </script>
 
 </body>
